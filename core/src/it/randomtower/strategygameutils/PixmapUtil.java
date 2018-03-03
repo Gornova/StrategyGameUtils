@@ -10,30 +10,44 @@ import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 
+/**
+ * Utility class with static methods working on {@link Pixmap}
+ */
 public final class PixmapUtil {
 
 	private static int tx = 0;
 	private static int ty = 0;
 	private static Color c = null;
 
+	private PixmapUtil() {
+	}
+
 	/**
 	 * Flood fill pixel map from a specific point, stops when get a specific
 	 * color and return resulting painted matrix
+	 * {@link https://en.wikipedia.org/wiki/Flood_fill} </br>
+	 * thanks to
+	 * {@link https://stackoverflow.com/questions/29914125/java-flood-fill-issue}
+	 * 
+	 * @return boolean[][] where every true represent a pixel reached by flood
+	 *         fill algorithm from starting position
 	 */
 	public static boolean[][] floodFill(Pixmap pixmap, int x, int y, int blockColor) {
+		if (pixmap == null)
+			throw new IllegalArgumentException("Pixmap should be not null");
 		// set to true for fields that have been checked
 		boolean[][] painted = new boolean[pixmap.getWidth()][pixmap.getHeight()];
-
 		Queue<Point> queue = new LinkedList<Point>();
-
 		queue.clear();
 		queue.add(new Point(x, y));
-
+		int temp_x = 0;
+		int temp_y = 0;
+		Point temp;
+		// work until queue is empty
 		while (!queue.isEmpty()) {
-			Point temp = queue.remove();
-			int temp_x = (int) temp.getX();
-			int temp_y = (int) temp.getY();
-
+			temp = queue.remove();
+			temp_x = (int) temp.getX();
+			temp_y = (int) temp.getY();
 			// only do stuff if point is within pixmap's bounds
 			if (temp_x >= 0 && temp_x < pixmap.getWidth() && temp_y >= 0 && temp_y < pixmap.getHeight()) {
 				// color of current point
@@ -41,12 +55,11 @@ public final class PixmapUtil {
 				if (!painted[temp_x][temp_y] && pixel != blockColor) {
 					painted[temp_x][temp_y] = true;
 					pixmap.drawPixel(temp_x, temp_y, 0);
-
+					// add adjacent pixels on queue
 					queue.add(new Point(temp_x + 1, temp_y));
 					queue.add(new Point(temp_x - 1, temp_y));
 					queue.add(new Point(temp_x, temp_y + 1));
 					queue.add(new Point(temp_x, temp_y - 1));
-
 				}
 			}
 		}
@@ -68,14 +81,6 @@ public final class PixmapUtil {
 				}
 			}
 		}
-		// for (int x = 0; x < outputPixmap.getWidth(); x++) {
-		// for (int y = 0; y < outputPixmap.getHeight(); y++) {
-		// c = new Color(outputPixmap.getPixel(x, y));
-		// if (c.equals(borderColor)) {
-		//
-		// }
-		// }
-		// }
 		return outputPixmap;
 	}
 
@@ -107,18 +112,20 @@ public final class PixmapUtil {
 	/**
 	 * Build border sprite from a given Sprite, starting from a given point.
 	 * Uses floodFill algorithm and stops on skipped color
+	 * 
+	 * @return Sprite with draw border of borderColor and borderSize
 	 */
-	public static Sprite buildBorder(Sprite input, int screenX, int screenY, Color skipped, Color borderColor,
+	public static Sprite buildBorder(Sprite input, int screenX, int screenY, Color blockColor, Color borderColor,
 			int borderSize) {
+		if (input == null) {
+			throw new IllegalArgumentException("input Sprite should be not null");
+		}
 		Texture texture = input.getTexture();
-
 		if (!texture.getTextureData().isPrepared()) {
 			texture.getTextureData().prepare();
 		}
 		Pixmap pixmap = texture.getTextureData().consumePixmap();
-
-		// skip black pixels when coloring
-		boolean[][] painted = PixmapUtil.floodFill(pixmap, screenX, screenY, Color.rgba8888(skipped));
+		boolean[][] painted = PixmapUtil.floodFill(pixmap, screenX, screenY, Color.rgba8888(blockColor));
 		Pixmap outputPixmap = PixmapUtil.border(pixmap, painted, borderColor.toIntBits(), borderSize);
 		return new Sprite(new Texture(outputPixmap));
 	}

@@ -12,6 +12,8 @@ This project in a working in progress project, created during another project de
 
 Let's start with a simple 2d map, displaying nation borders, where every country has a different color. In this case how it's possible to select a country when user click on the map and display borders, so player can easily understand which country is selected ? 
 
+*Show me the code*: [take a look here](https://github.com/Gornova/StrategyGameUtils/blob/master/desktop/src/it/randomtower/strategygameutils/desktop/SelectMapBorderFloodFill.java)
+
 To solve this kind of problems I've found a simple solution:
 
 1. get player click point as (x,y)

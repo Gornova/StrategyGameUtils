@@ -15,7 +15,11 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 import it.randomtower.strategygameutils.PixmapUtil;
 
-public class DesktopLauncher extends ApplicationAdapter {
+/**
+ * Simple libgdx application to demonstrate select border using flood fill
+ * algorithm and display back to player
+ */
+public class SelectMapBorderFloodFill extends ApplicationAdapter {
 
 	private OrthographicCamera cam;
 	private Sprite map;
@@ -28,10 +32,13 @@ public class DesktopLauncher extends ApplicationAdapter {
 		// init camera
 		cam = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		cam.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		// init map image
+		// init map image: note you can choose any image you like, just keep in
+		// mind to select an image where every country has a different color and
+		// there is only one border color
 		map = new Sprite(new Texture("kingdomBlackBorder.png"));
 		// init input processor
 		InputMultiplexer multi = new InputMultiplexer();
+		// create an input processor to handle user input
 		multi.addProcessor(new InputProcessor() {
 
 			@Override
@@ -47,6 +54,11 @@ public class DesktopLauncher extends ApplicationAdapter {
 			@Override
 			public boolean touchDown(int screenX, int screenY, int pointer, int button) {
 				System.out.println("clicked: " + screenX + "," + screenY);
+				// note: starting from map image, givern user click point, block
+				// on BLACK color and draw a border with RED color and with
+				// specified size (in this case 2)
+				// note: you can choose any color you want as border color and
+				// for block flood fill algorithm
 				selected = PixmapUtil.buildBorder(map, screenX, screenY, Color.BLACK, Color.RED, 2);
 				return true;
 			}
@@ -98,7 +110,7 @@ public class DesktopLauncher extends ApplicationAdapter {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 		config.width = 1024;
 		config.height = 768;
-		new LwjglApplication(new DesktopLauncher(), config);
+		new LwjglApplication(new SelectMapBorderFloodFill(), config);
 	}
 
 }
